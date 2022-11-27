@@ -363,42 +363,142 @@ lst.insert(2, 'Big')
 
 
 Q40. What is a tuple? How is it different from list?
+Tuple is one of 4 built-in data types in Python used to store collections of data.
+Tuple items are ordered, unchangeable, and allow duplicate values.
+A tuple is a collection which is ordered and unchangeable i.e. unlike list we are not allowed to change/modify an existing tuple.
 
 
 
 Q41. How can you create a tuple in Python?
+Tuples are written with round brackets.
+thistuple = ("apple", "banana", "cherry")
+
+
 
 Q42. Create a tuple and try to add your name in the tuple. Are you able to do it? Support your answer with reason.
+NO, We can't add elements to a tuple because of their immutable property.
+
 
 Q43. Can two tuple be appended. If yes, write a code for it. If not, why?
+Concatenating 2 or more tuples to form a new tuple is allowed until and unless there is no modification involved.
+t1 = ("a", "b","c")
+t2 = (1,2,3)
+t3 = t1+t2
+
+
 
 Q44. Take a tuple as an input and print the count of elements in it.
+t3 = ('a', 'b', 'c', 1, 2, 3)
+
+def tupleElementCount(inputTuple):
+    return (len(inputTuple))
+
+print(tupleElementCount(t3)) #6
+
+
 
 Q45. What are sets in Python?
+Set is one of 4 built-in data types in Python used to store collections of data.
+A set is a collection which is unordered, unchangeable*, and unindexed.
+Set items do not allow duplicate values.
+Note: Set items are unchangeable, but we can remove items and add new items.
+Note: Sets are unordered, so we cannot be sure in which order the items will appear.
+
 
 Q46. How can you create a set?
+Sets are written with curly brackets.
+thisset = {"apple", "banana", "cherry", "apple"}
+
+
 
 Q47. Create a set and add "iNeuron" in your set.
+set1 = {'iNeuron'}
+
+
 
 Q48. Try to add multiple values using add() function.
+set1 = set()
+set1.add('iNeuron')
+set1.add('iNeuron')
+set1.add('1')
+set1.add('1')
+
+print(set1) #{'iNeuron', '1'}
+
+
+
 
 Q49. How is update() different from add()?
+add() method is used to add one item to a set.
+
+The update() method updates the current set, by adding items from another set (or any other iterable).
+If an item is present in both sets, only one appearance of this item will be present in the updated set.
+
+
 
 Q50. What is clear() in sets?
+The clear() method removes all elements in a set.
+Syntax: set.clear()
+
+
 
 Q51. What is frozen set?
+Python frozenset() Method creates an immutable Set object from an iterable. It is a built-in Python function. As it is a set object therefore we cannot have duplicate values in the frozenset.
+Syntax : frozenset(iterable_object_name)
+
 
 Q52. How is frozen set different from set?
+Frozenset is similar to set in Python, except that frozen sets are immutable, which implies that once generated, elements from the frozenset cannot be added or removed.
+
+
 
 Q53. What is union() in sets? Explain via code.
+The union() method returns a set that contains all items from the original set, and all items from the specified set(s).
+If an item is present in more than one set, the result will contain only one appearance of this item.
+Syntax: set.union(set1, set2...)
+
+set_a = {1,2,3,4,5,6}
+set_b = {3,6,8,9,10}
+
+# union operation
+print(set_a | set_b) #or print(set.union(set_a,set_b))
+#{1, 2, 3, 4, 5, 6, 8, 9, 10}
+
 
 Q54. What is intersection() in sets? Explain via code.
+The intersection() method returns a set that contains the similarity between two or more sets.
+Syntax: set.intersection(set1, set2 ... etc)
+x = {"a", "b", "c"}
+y = {"c", "d", "e"}
+z = {"f", "g", "c"}
+# intersection operation
+result = x.intersection(y, z) #or result = set.intersection(x,y,z) 
+print(result)
+#or print(x & y & z)
+
+
 
 Q55. What is dictionary in Python?
+Dictionaries are used to store data values in key:value pairs.
+A dictionary is a collection which is ordered*, changeable and do not allow duplicates.
+Note:
+As of Python version 3.7, dictionaries are ordered. In Python 3.6 and earlier, dictionaries are unordered.
+
+
 
 Q56. How is dictionary different from all other data structures.
+list,tuple,sets are iterated using indices whereas dictionary is iterated using key-value pair.
+A dictionary has a set of keys and each key has a single associated value.
 
-Q57. How can we delare a dictionary in Python?
+
+Q57. How can we declare a dictionary in Python?
+Dictionaries are written with curly brackets, and have keys and values:
+thisdict = {
+  "brand": "Ford",
+  "model": "Mustang",
+  "year": 1964
+}
+
 
 Q58. What will the output of the following?
 ```
@@ -410,10 +510,51 @@ print(type(var))
 
 
 Q59. How can we add an element in a dictionary?
+thisdict = {
+  "brand": "Ford",
+  "model": "Mustang",
+  "year": 1964
+}
+#adding an element:
+a.Using a new index key and assigning a value to it:
+thisdict["color"] = "red"
+
+b.Using update() method which will update the dictionary with the items from a given argument. If the item does not exist, the item will be added.
+thisdict.update({"color": "red"})
+
+print(thisdict)
+
 
 Q60. Create a dictionary and access all the values in that dictionary.
+dict1 = {}
+dict1['name'] = 'Shubh'
+dict1['age'] = 22
+dict1['skills'] = ['Python', 'Java']
+dict1['states_visited'] = ('UP', 'Goa')
+dict1[45] = 'Random Key'
+dict1['other_details'] = {'color' : 'Black', 'nationality' : 'Indian'}
+
+# How to get the values from a dictionary
+print("All Values in dictionary : ",list(dict1.values()))
+
+
 
 Q61. Create a nested dictionary and access all the element in the inner dictionary.
+dict1 = {
+    'name': 'Shubh', 
+    'age': 22, 
+    'skills': ['Python', 'Java'], 
+    'states_visited': ('UP', 'Goa'), 
+    45: 'Random Key', 
+    'other_details': {
+        'color': 'Black', 
+        'nationality': 'Indian'
+        }
+    }
+
+print('Inner dictionary elements: ',dict1['other_details'])
+
+
 
 Q62. What is the use of get() function?
 

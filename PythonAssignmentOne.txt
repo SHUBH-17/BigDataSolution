@@ -79,8 +79,7 @@ print("First number is {}, second number is {} third is {} and fourth is {}".for
 print()  
 
 2.Using List Comprehension
-# Taking multiple inputs in a single line  
-# and type casting using list() function  
+# Taking multiple inputs in a single line and type casting using list() function  
 x = list(map(int, input("Enter multiple values: ").split()))  
 print("List of students: ", x)  
 
@@ -269,7 +268,9 @@ string = "Big Data iNeuron"
 desired_output = "iNeuron"
 ```
 print(string[8:  :1])
-
+Or,
+string = string.split(" ")
+print(string[-1])
 
 Q29. Write a code to get the desired output of the following
 ```
@@ -281,7 +282,10 @@ print(string[-1:7:-1])
 
 
 Q30. Resverse the string given in the above question.
-print(string[-1: :-1])
+string = "Big Data iNeuron"
+print(string[-1: :-1]) # norueNi ataD giB
+string = string.split(" ")
+print(string[-1: :-1]) # ['iNeuron', 'Data', 'Big']
 
 
 
@@ -314,10 +318,27 @@ print("'iNeuron's Big Data Course'")
 
 
 Q34. What is a list in Python?
+Lists are one of 4 built-in data types in Python used to store collections of data.
+List items are ordered, changeable, and allow duplicate values.
+List items are indexed, the first item has index [0], the second item has index [1] etc.
+
+
 
 Q35. How can you create a list in Python?
+Lists are created using square brackets:
+thislist = ["apple", "banana", "cherry"]
+
+
 
 Q36. How can we access the elements in a list?
+list1 = [1,"Shubh",20,"Hi"]
+By referring to the index number.
+print(list1[1])
+Or, using a loop
+for element in list1:
+    print(element, end = " ")
+
+
 
 Q37. Write a code to access the word "iNeuron" from the given list.
 ```
@@ -328,6 +349,10 @@ print(lst[4][2])
 
 
 Q38. Take a list as an input from the user and find the length of the list.
+lst1 = [int(item) for item in input("Enter your list items : ").split()]
+print('Length of your List is: ',len(lst1))
+
+
 
 Q39. Add the word "Big" in the 3rd index of the given list.
 ```
@@ -338,6 +363,8 @@ lst.insert(2, 'Big')
 
 
 Q40. What is a tuple? How is it different from list?
+
+
 
 Q41. How can you create a tuple in Python?
 
@@ -367,7 +394,7 @@ Q53. What is union() in sets? Explain via code.
 
 Q54. What is intersection() in sets? Explain via code.
 
-Q55. What is dictionary ibn Python?
+Q55. What is dictionary in Python?
 
 Q56. How is dictionary different from all other data structures.
 

@@ -712,13 +712,74 @@ for k, v in dict1.items():
 ### Coding problems
 Q76. Write a Python program to find the factorial of a given number.
 
+def factorial(num):
+  if(num==0 or num==1):
+    return 1
+  else:
+    return num*factorial(num-1)
+print(factorial(8))
+
+
+
 Q77. Write a Python program to calculate the simple interest. Formula to calculate simple interest is SI = (P*R*T)/100
+
+def simple_interest(p,t,r):
+    print('The principal is', p)
+    print('The time period is', t)
+    print('The rate of interest is',r)
+    si = (p * t * r)/100
+    print('The Simple Interest is', si)
+    return si
+simple_interest(8, 6, 8)
+
+
 
 Q78. Write a Python program to calculate the compound interest. Formula of compound interest is A = P(1+ R/100)^t.
 
+def compound_interest(principle, rate, time):
+    Amount = principle * (pow((1 + rate / 100), time))
+    CI = Amount - principle
+    print("Compound interest is", CI)
+compound_interest(10000, 10.25, 30)
+
+
 Q79. Write a Python program to check if a number is prime or not.
 
+
+num = 11
+if num > 1:
+    for i in range(2, int(num/2)+1):
+        if (num % i) == 0:
+            print(num, "is not a prime number")
+            break
+    else:
+        print(num, "is a prime number")
+else:
+    print(num, "is not a prime number")
+	
+	
+
 Q80. Write a Python program to check Armstrong Number.
+
+if abcd... = pow(a,n) + pow(b,n) + pow(c,n) + pow(d,n) + .... then Armstrong Number
+n -> no. of digits
+program:
+def check_armstrong_number(num):
+  n = len(str(num))
+  temp_num = num #123
+  sum = 0
+  while temp_num != 0:
+    digit = temp_num % 10
+    sum += digit**n
+    temp_num //=10
+  if num == sum:
+    print(num,'is an armstrong number')
+  else:
+    print(num,'is not an armstrong number')
+check_armstrong_number(153)
+
+
+
 
 Q81. Write a Python program to find the n-th Fibonacci Number.
 

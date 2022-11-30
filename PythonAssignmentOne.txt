@@ -889,7 +889,50 @@ Nmaxelements(inputlist, N)
 
 Q85. Write a Python program to find cumulative sum of a list.
 
+#1st method
+def Cumulative(inputlist):
+    cu_list = []
+    length = len(inputlist)
+    cu_list = [sum(inputlist[0:x:1]) for x in range(0, length+1)]
+    return cu_list[1:]
+list1 = [10, 20, 30, 40, 50]
+print (Cumulative(list1))
+
+#second method
+list1=[10,20,30,40,50]
+new_list=[]
+j=0
+for i in range(len(list1)):
+    j+=list1[i]
+    new_list.append(j)
+print(new_list)
+
+
+
 Q86. Write a Python program to check if a string is palindrome or not.
+
+inputstr = "redivider"
+
+#1st method
+revstr = ""
+for i in inputstr:
+    revstr = i + revstr
+if (inputstr == revstr):
+    print("Yes")
+else:
+    print("No")
+
+#2nd method:
+def isPalindrome(s):
+    return s == s[::-1]
+ans = isPalindrome(inputstr)
+if ans:
+    print("Yes")
+else:
+    print("No")
+	
+	
+
 
 Q87. Write a Python program to remove i'th element from a string.
 

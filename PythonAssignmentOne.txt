@@ -783,11 +783,109 @@ check_armstrong_number(153)
 
 Q81. Write a Python program to find the n-th Fibonacci Number.
 
+def fibonacci(num):
+    n1 = 0
+    n2 = 1
+    if num <= 0:
+        print("invalid input")
+    elif num == 1:
+        return n1
+    elif num == 2: 
+        return n2
+    else:
+        for i in range(2,num): # or range(2,num+1)
+            n3 = n1 + n2
+            n1 = n2
+            n2 = n3
+        return n3
+print(fibonacci(9))
+
+Formula method:
+# To find the n-th Fibonacci Number using formula
+from math import sqrt
+# import square-root method from math library
+def nthFib(n):
+    res = (((1+sqrt(5))**n)-((1-sqrt(5)))**n)/(2**n*sqrt(5))
+    # compute the n-th fibonacci number
+    print(int(res),'is',str(n)+'th fibonacci number')
+    # format and print the number
+     
+# driver code
+nthFib(8)
+
+
 Q82. Write a Python program to interchange the first and last element in a list.
+
+def swapList(list):
+    first = list.pop(0)  
+    last = list.pop(-1)
+    list.insert(0, last) 
+    list.append(first)  
+    return list
+newList = [12, 35, 9, 56, 24]
+print(swapList(newList))
+
+
+
 
 Q83. Write a Python program to swap two elements in a list.
 
+newList = [12, 35, 9, 56, 24]
+#first method if elements are given
+def swapElements(list,element1,element2):
+    a = b = 0
+    for i in range(0,len(list)):
+        if list[i] == element1:
+            a=i
+        elif list[i] == element2:
+            b=i
+        else:
+            continue
+    first = list.pop(a)  
+    second = list.pop(b-1) # -1 because after first pop list size will reduce by 1
+    list.insert(a, second) 
+    list.insert(b, first)  
+    return list
+print(swapElements(newList,35,24))
+
+#second method when positions are given:
+newList = [12, 35, 9, 56, 24]
+# Swap function
+def swapPositions(list, pos1, pos2):
+    list[pos1], list[pos2] = list[pos2], list[pos1]
+    return list
+pos1, pos2  = 2, 5
+print(swapPositions(newList, pos1-1, pos2-1)) # -1 because index starts from 0
+
+
+
+
+
 Q84. Write a Python program to find N largest element from a list.
+
+#1st method:
+l = [1000,298,3579,100,200,-45,900]
+n = 4
+l.sort()
+print(l[-n:])
+
+#2nd method:
+def Nmaxelements(list1, N):
+    final_list = []
+    for i in range(0, N):
+        max1 = 0
+        for j in range(len(list1)):    
+            if list1[j] > max1:
+                max1 = list1[j]
+        list1.remove(max1)
+        final_list.append(max1)
+    print(final_list)
+inputlist = [2, 6, 41, 85, 0, 3, 7, 6, 10]
+N = 2
+Nmaxelements(inputlist, N)
+
+
+
 
 Q85. Write a Python program to find cumulative sum of a list.
 
@@ -799,7 +897,7 @@ Q88. Write a Python program to check if a substring is present in a given string
 
 Q89. Write a Python program to find words which are greater than given length k.
 
-Q90. Write a Python program to extract unquire dictionary values.
+Q90. Write a Python program to extract unique dictionary values.
 
 Q91. Write a Python program to merge two dictionary.
 

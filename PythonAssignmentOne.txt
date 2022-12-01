@@ -936,11 +936,114 @@ else:
 
 Q87. Write a Python program to remove i'th element from a string.
 
+#1st method
+str1 = 'shubham'
+# element to be removed
+n=6
+newstr = ''
+for i in range(len(str1)):
+    if i == n-1:
+        continue
+    else:
+        newstr += str1[i]
+print(newstr)
+
+#2nd method
+def remove(string, i): 
+    for j in range(len(string)):
+        if j == i:
+            string = string.replace(string[i], "", 1)
+    return string
+if __name__ == '__main__':
+    string = "geeksFORgeeks"
+    # Remove nth index element
+    i = 5
+    print(remove(string, i))
+	
+	
+	
+
 Q88. Write a Python program to check if a substring is present in a given string.
+
+#method 1
+string = "geeks for geeks"  
+substring = "geeks"  
+s = string.split()
+if substring in s:
+    print("yes")
+else:
+    print("no")
+
+#method 2 : Check substring using the “__contains__” magic class.
+#This method is used to check if the string is present in the other string or not. 
+a = ['Geeks-13', 'for-56', 'Geeks-78', 'xyz-46']
+for i in a:
+    if i.__contains__("Geeks"):
+        print(f"Yes! {i} is containing.")
+		
+
 
 Q89. Write a Python program to find words which are greater than given length k.
 
+#method 1
+def string_k(k, str):
+    string = []
+    text = str.split(" ")
+    for x in text:
+        if len(x) > k:
+            string.append(x)
+    return string  
+k = 3
+str ="geek for geeks"
+print(string_k(k, str))
+
+#method 2 : Using list comprehension
+sentence = "hello geeks for geeks is computer science portal"
+length = 4
+print([word for word in sentence.split() if len(word) > length])
+
+#method 3 : Using lambda function 
+
+n="hello geeks for geeks is computer science portal"
+l=4
+s=n.split(" ")
+l=list(filter(lambda x: (len(x)>l),s))
+print(l)
+
+
+
+
+
 Q90. Write a Python program to extract unique dictionary values.
+
+
+test_dict = {'gfg': [5, 6, 7, 8],
+             'is': [10, 11, 7, 5],
+             'best': [6, 12, 10, 8],
+             'for': [1, 2, 5]}
+print("The original dictionary is : " + str(test_dict))
+#method 1 
+# Extract Unique values dictionary values
+# Using set comprehension + values() + sorted()
+res1 = list(sorted({ele for val in test_dict.values() for ele in val}))
+print("The unique values list is (method 1): " + str(res1))
+
+#method 2
+x=list(test_dict.values())
+y=[]
+res2=[]
+for i in x:
+    y.extend(i)
+for i in y:
+    if i not in res2:
+        res2.append(i)
+res2.sort()
+print("The unique values list is (method 2): " + str(res2))
+
+
+
+
+
 
 Q91. Write a Python program to merge two dictionary.
 

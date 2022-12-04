@@ -1165,6 +1165,26 @@ Q96. Write a python program to print below pattern.
 * * * * 
 * * * * * 
 ```
+
+n = 5
+#method 1
+def pypart(n):
+    for i in range(0, n):
+        for j in range(0, i+1):
+            print("* ",end="")
+        # ending line after each row
+        print("\r")
+pypart(n)
+#method 2
+def pypart2(n):
+    myList = []
+    for i in range(1,n+1):
+        myList.append("* "*i)
+    print("\n".join(myList))
+pypart2(n)
+
+
+
 Q97. Write a python program to print below pattern.
 ```
     *
@@ -1174,6 +1194,15 @@ Q97. Write a python program to print below pattern.
 *****
 ```
 
+
+# Here, we have to print a space (height – row) times and then print “*” row times.
+height = 5
+for row in range(1, height+ 1):
+    print(" " * (height - row) +"*" * row) #no space after star
+	
+	
+
+
 Q98. Write a python program to print below pattern.
 ```
     * 
@@ -1182,6 +1211,31 @@ Q98. Write a python program to print below pattern.
  * * * * 
 * * * * * 
 ```
+#method1
+height = 5
+for row in range(1, height+ 1):
+    print(" " * (height - row) +"* " * row) #space after star
+	
+#method2
+def triangle(n):
+    # number of spaces
+    k = n - 1
+    for i in range(0, n):
+        for j in range(0, k):
+            print(end=" ")
+        # decrementing k after each loop
+        k = k - 1
+        for j in range(0, i+1):
+            # printing stars
+            print("* ", end="") #no space after star changes the pattern to different pattern
+        # ending line after each row
+        print("\r")
+# Driver Code
+n = 5
+triangle(n)
+
+
+
 
 Q99. Write a python program to print below pattern.
 ```
@@ -1192,6 +1246,23 @@ Q99. Write a python program to print below pattern.
 1 2 3 4 5
 ```
 
+def numpat(n): 
+    # initialising starting number
+    num = 1
+    for i in range(0, n):
+        # re assigning num (ignore this if continuous number pattern is required)
+        num = 1
+        for j in range(0, i+1):
+            print(num, end=" ")
+            num = num + 1
+        # ending line after each row
+        print("\r")
+# Driver code
+n = 5
+numpat(n)
+
+
+
 Q100. Write a python program to print below pattern.
 ```
 A 
@@ -1200,3 +1271,17 @@ C C C
 D D D D 
 E E E E E 
 ```
+
+def alphapat(n):
+    # ASCII value corresponding to 'A'
+    num = 65
+    for i in range(0, n):
+        for j in range(0, i+1):
+            ch = chr(num)
+            print(ch, end=" ")
+        # incrementing number
+        num = num + 1
+        # ending line after each row
+        print("\r")
+n = 5
+alphapat(n)

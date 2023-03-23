@@ -182,25 +182,91 @@ from (select *,
 where tmp.row_num = 1;
 
 Q26.
-
+select a.product_name, sum(unit) as unit
+from Products a
+left join Orders b
+on a.product_id = b.product_id
+where b.order_date between '2020-02-01' and '2020-02-29'
+group by a.product_id
+having sum(unit) >= 100;
 
 Q27.
+SELECT *
+FROM Users
+WHERE REGEXP_LIKE(mail, '^[a-zA-Z][a-zA-Z0-9\_\.\-]*@leetcode.com');
+
+select * from Users
+where mail regexp '^[a-zA-Z]+[a-zA-Z0-9_\\./\\-]{0,}@leetcode.com$'
+order by user_id;
 
 Q28.
+select o.customer_id, c.name
+from Customers c, Product p, Orders o
+where c.customer_id = o.customer_id and p.product_id = o.product_id
+group by o.customer_id
+having 
+(
+    sum(case when o.order_date like '2020-06%' then o.quantity*p.price else 0 end) >= 100
+    and
+    sum(case when o.order_date like '2020-07%' then o.quantity*p.price else 0 end) >= 100
+);
 
 Q29.
+SELECT DISTINCT title
+FROM Content ctt
+INNER JOIN TVProgram tv
+ON ctt.content_id = tv.content_id
+WHERE content_type = 'Movies'
+AND Kids_content = 'Y'
+AND program_date BETWEEN '2020-06-01' AND '2020-06-30';
 
-Q30.
-
-Q31.
+Q30. and Q31.
+SELECT q.id, q.year, COALESCE(n.npv,0) AS npv
+FROM Queries q
+LEFT JOIN NPV n
+ON q.id = n.id AND q.year=n.year;
 
 Q32.
+select en.unique_id,e.name
+from employees e left join employeeuni en on e.id=en.id
+order by name;
 
 Q33.
+select name, sum(ifnull(distance, 0)) as travelled_distance
+from Rides r
+right join Users u
+on r.user_id = u.id
+group by name
+order by 2 desc,1 asc;
 
 Q34.
+select a.product_name, sum(unit) as unit
+from Products a
+left join Orders b
+on a.product_id = b.product_id
+where b.order_date between '2020-02-01' and '2020-02-29'
+group by a.product_id
+having sum(unit) >= 100;
 
 Q35.
+SELECT user_name AS results FROM
+(
+SELECT a.name AS user_name, COUNT(*) AS counts FROM MovieRating AS b
+    JOIN Users AS a
+    on a.user_id = b.user_id
+    GROUP BY b.user_id
+    ORDER BY counts DESC, user_name ASC LIMIT 1
+) first_query
+UNION
+SELECT movie_name AS results FROM
+(
+SELECT c.title AS movie_name, AVG(d.rating) AS rate FROM MovieRating AS d
+    JOIN Movies AS c
+    on c.movie_id = d.movie_id
+    WHERE substr(d.created_at, 1, 7) = '2020-02'
+    GROUP BY d.movie_id
+    ORDER BY rate DESC, movie_name ASC LIMIT 1
+) second_query;
 
 Q36.
 

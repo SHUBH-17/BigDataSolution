@@ -269,34 +269,157 @@ SELECT c.title AS movie_name, AVG(d.rating) AS rate FROM MovieRating AS d
 ) second_query;
 
 Q36.
+select name, sum(ifnull(distance, 0)) as travelled_distance
+from Rides r
+right join Users u
+on r.user_id = u.id
+group by name
+order by 2 desc,1 asc;
 
 Q37.
+select unique_id, name
+from Employees
+left join EmployeeUNI
+on if (Employees.id = EmployeeUNI.id, Employees.id, null);
 
 Q38.
+select s.id, s.name
+from Students s
+left join Departments d
+on s.department_id = d.id
+where d.id is null;
+
 
 Q39.
+SELECT LEAST(from_id,to_id) as person1,
+GREATEST(from_id,to_id) as person2,
+COUNT(*) as call_count,
+SUM(duration) as total_duration
+FROM Calls
+GROUP BY person1,person2;
 
 Q40.
+select p.product_id, 
+    round(sum(p.price * u.units)/sum(u.units), 2) as average_price
+from Prices p
+left join UnitsSold u
+on p.product_id = u.product_id and 
+    datediff(u.purchase_date, p.start_date) >= 0 and
+    datediff(p.end_date, u.purchase_date) >= 0
+group by p.product_id;
 
 Q41.
+select name as warehouse_name, sum(units * vol) as volume
+from Warehouse w
+join (select product_id, Width*Length*Height as vol
+     from Products) p
+on w.product_id = p.product_id
+group by name;
 
 Q42.
+select a.sale_date, (a.sold_num - b.sold_num) as diff 
+from Sales a left join Sales b
+on a.sale_date = b.sale_date
+where a.fruit = 'apples' and b.fruit = 'oranges';
 
 Q43.
+WITH CTE AS (
+SELECT
+player_id, min(event_date) as event_start_date
+from
+Activity
+group by player_id )
+
+SELECT
+round((count(distinct c.player_id) / (select count(distinct player_id) from Activity)),2)as fraction
+FROM
+CTE c
+JOIN Activity a
+on c.player_id = a.player_id
+and datediff(c.event_start_date, a.event_date) = -1;
+
 
 Q44.
+select 
+    a.name 
+from 
+    Employee a 
+inner join 
+    Employee b 
+on (a.id = b.managerid) 
+group by a.name 
+having count(distinct b.id) >= 5;
 
 Q45.
+select 
+    a.dept_name,
+    coalesce(count(student_id), 0) student_number
+from 
+    Department a 
+left join
+    Student b
+on 
+    (a.dept_id = b.dept_id)
+group by a.dept_name
+order by student_number desc, a.dept_name asc;
 
 Q46.
+SELECT
+    customer_id
+FROM customer
+GROUP BY customer_id
+HAVING COUNT( DISTINCT product_key) = (SELECT COUNT(*) FROM product);
 
 Q47.
+SELECT
+    project_id,
+    employee_id
+FROM (
+    SELECT
+        p.project_id,
+        p.employee_id,
+        DENSE_RANK() OVER(PARTITION BY p.project_id ORDER BY e.experience_years DESC) as rnk
+    FROM Project as p JOIN Employee as e
+    ON p.employee_id = e.employee_id
+    ) x
+WHERE rnk = 1;
 
 Q48.
+select Books.book_id, name from Books join Orders
+    on Books.book_id = Orders.book_id
+    where available_from < '2019-05-23'
+    and dispatch_date between '2018-06-23' and '2019-06-23'
+    group by Books.book_id
+    having sum(quantity) < 10
+    union
+select book_id, name from Books
+    where available_from < '2019-05-23'
+    and book_id not in (
+        select distinct book_id from Orders where dispatch_date between '2018-06-23' and '2019-06-23'
+    );
 
 Q49.
+select e.student_id, e.course_id, e.grade
+from (
+  select *, row_number() over (partition by student_id order by grade desc) rn
+  from Enrollments
+) e
+where e.rn = 1;
 
 Q50.
+select group_id,player_id from 
+(select group_id,player_id,sum((
+    case when player_id = first_player then first_score
+         when player_id = second_player then second_score
+         end
+)) as totalScores
+from Players p,Matches m
+where p.player_id = m.first_player
+or p.player_id = m.second_player
+group by group_id,player_id
+order by group_id,totalScores desc,player_id) as temp
+group by group_id
+order by group_id,totalScores desc,player_id;
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 SET_2:

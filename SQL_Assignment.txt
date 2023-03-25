@@ -1311,28 +1311,209 @@ on c1.pay_date=c2.pay_date
 order by department_id,month(c2.pay_date);
 
 Q131.
+with cte as(
+select player_id,event_date as curr_date,lead(event_date) over(partition by player_id order by event_date) as next_date
+from activity
+),
+cte1 as(
+select distinct(player_id),curr_date,
+case when datediff(next_date,curr_date)= 1 then 1 else 0 end as chk
+from cte
+group by player_id)
+
+select curr_date as install_dt,count(player_id) as installs,round((sum(chk)/count(chk)),1)as retention_rate
+from cte1
+group by curr_Date;
 
 Q132.
-Q133.
-Q134.
-Q135.
-Q136.
+with cte as(
+select m.first_player as player,m.first_score as score,p.group_id
+from matches m inner join players p on m.first_player=p.player_id
+union all
+select m.second_player as player,m.second_score as score,p.group_id
+from matches m inner join players p on m.second_player=p.player_id
+),
+cte2 as(
+select group_id,player,sum(score)as total_score
+from cte group by group_id,player
+)select group_id,player as player_id from(
+select group_id,player,rank() over(partition by group_Id order by total_score desc ,player)as rn
+from cte2)a
+where rn=1;
+
+Q133. and Q134.
+with cte1 as(
+select exam_id,max(score) as max_score,min(score) as min_score
+from exam group by exam_id
+),
+cte2 as(
+select distinct e.student_id,s.student_name,e.exam_id,e.score,c.min_score ,c.max_score
+from exam e left join student s
+on e.student_id=s.student_id left join cte1 c on c.exam_id=e.exam_id
+)
+
+select student_id,student_name
+from cte2 c where score <>min_score and score<>max_score
+group by student_id 
+having count(student_id)=(select count(student_id) from exam where c.student_id=student_id group by student_id)
+
+Q135. and Q136.
+with cte as(
+select *,rank() over(partition by username order by enddate desc) as rn,
+lead(enddate) over(partition by username order by enddate desc) as next_activity
+from useractivity
+)
+select username,activity,startdate,enddate
+from cte
+where (rn=2 and next_activity is not null) or (rn=1 and next_activity is null);
+
 Q137.
+select  
+ceil(avg(salary)-avg(replace(salary,'0',''))) as avg_salary 
+from employees;
+
 Q138.
+select salary*months as earning,count(*) as no_of_employee
+from employee 
+where salary*months=(select max(salary*months) from employee);
+
 Q139.
+-- 1st Query output
+select concat(name,'(',substr(occupation,1,1),')') as name
+from occupations;
+
+-- 2nd Query Output
+with cte as(
+select occupation,count(*) as occ_count
+from occupations group by occupation)
+
+select concat('There are a total of ',occ_count,' ',occupation,'s') as statement
+from cte
+order by occ_count;
 
 Q140.
+select Doctor,Professor,Singer,Actor from(
+select
+    rn,
+    max(case when occupation = 'Doctor' then name end) Doctor,
+    max(case when occupation = 'Professor'  then name end) Professor,
+    max(case when occupation = 'Singer' then name end) Singer,
+    max(case when occupation = 'Actor'  then name end) Actor
+from (
+    select o.*, row_number() over(partition by occupation order by name) rn
+    from occupations o
+)a
+group by rn)b;
+
 Q141.
+select n,
+case 
+    when p is null then 'root'
+	when n not in(select distinct p from bst where p is not null) then 'leaf'
+    else 'inner' 
+end as type
+from bst
+order by n;
+		
 Q142.
+SELECT C.COMPANY_CODE,
+       C.FOUNDER,
+  (SELECT COUNT(DISTINCT LEAD_MANAGER_CODE) 
+   FROM LEAD_MANAGER L
+   WHERE L.COMPANY_CODE = C.COMPANY_CODE) as lead_manager_count,
+  (SELECT COUNT(DISTINCT SENIOR_MANAGER_CODE)
+   FROM SENIOR_MANAGER S
+   WHERE S.COMPANY_CODE = C.COMPANY_CODE) as senior_manager_count,
+  (SELECT COUNT(DISTINCT MANAGER_CODE)
+   FROM MANAGER M
+   WHERE M.COMPANY_CODE = C.COMPANY_CODE) as manager_count,
+  (SELECT COUNT(DISTINCT EMPLOYEE_CODE) 
+   FROM EMPLOYEE E
+   WHERE E.COMPANY_CODE = C.COMPANY_CODE)as employee_count
+FROM COMPANY C
+ORDER BY C.COMPANY_CODE ASC;
+
 Q143.
+select distinct x1,y1 from(
+select f1.x as x1,f1.y as y1,f2.x as x2,f2.y as y2
+from functions f1 inner join functions f2
+on f1.x=f2.y and f1.y=f2.x)a
+where x1<=y1
+order by x1;
+
 Q144.
+with cte as(
+select s.id,s.name,f.friend_id,p.salary as student_salary,p1.salary as friend_salary
+from students s left join friends f
+on s.id=f.id left join packages p 
+on s.id=p.id left join packages p1 
+on f.friend_id=p1.id
+)
+select name from cte
+where student_salary <friend_salary
+order by friend_salary;
+
 Q145.
+with cte as(
+select s.hacker_id,h.name,s.challenge_id,s.score as obtained_score,c.difficulty_level,d.score as max_score
+from submission s left join hackers h on s.hacker_id=h.hacker_id
+left join challenges c on c.challenge_id=s.challenge_id left join difficulty d on c.difficulty_level=d.difficulty_level
+)
+select hacker_id,name
+from cte
+where obtained_score=max_score
+group by hacker_id
+having count(*)>=1
+order by count(*) desc,hacker_id limit 1 ;
+
 Q146.
+select * from projects;
+with cte as(
+select *,date_sub(start_date,interval task_id day) as gp_date
+from projects
+)
+select start_date,end_date from(
+select gp_date,min(start_date) as start_date,max(end_date) as end_date
+from cte 
+group by gp_date
+order by count(*) 
+)a;
+
 Q147.
+with cte as(
+select *,
+transaction_date -row_number() over(partition by user_id order by transaction_date) as gp_date
+from transactions)
+
+select distinct user_id
+from cte
+group by user_id,date(gp_date) 
+having count(*)>=3;
+	
 Q148.
+select count(p1.payer_id) as unique_relationships
+from payments p1 
+inner join payments p2
+on p1.payer_id=p2.recipient_id 
+and p1.recipient_id=p2.payer_id 
+and p1.payer_id>p2.payer_id;
+
 Q149.
+select count(user_id) as users from(
+select user_id,spend,rank() over(partition by user_id order by transaction_date) as rn
+from user_transaction)a
+where rn=1 and spend>=50
 
 Q150.
+with cte as(
+select date(measurement_time) as measurement_day,measurement_value,
+row_number() over(partition by day(measurement_time) order by measurement_id)as rn
+from measurements)
+select measurement_day,
+round(sum(case when rn%2=1 then measurement_value else 0 end),2) as odd_sum,
+round(sum(case when rn%2=0 then measurement_value else 0 end),2) as even_sum
+from cte
+group by measurement_day;
 
 Q151.
 select * from transactions;

@@ -1,7 +1,7 @@
 SQL Assignment:
----------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 SET_1:
-
+------------------------------------------------------------------------------------------------------------------------------------------------------
 Q1. 
 SELECT *
 FROM City
@@ -423,7 +423,7 @@ order by group_id,totalScores desc,player_id;
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 SET_2:
-
+------------------------------------------------------------------------------------------------------------------------------------------------------
 Q51.
 SELECT name,population,area
 FROM World
@@ -628,33 +628,327 @@ on c.player_id = a.player_id
 and datediff(c.event_start_date, a.event_date) = -1;
 
 Q76.
+SELECT 
+    t1.company_id,
+    t1.employee_id,
+    t1.employee_name,
+    ROUND(CASE WHEN t2.max_sal >= 1000 AND t2.max_sal <= 10000 then salary * 0.76
+        WHEN t2.max_sal > 10000 THEN salary * 0.51 
+        Else salary end, 0) as salary
+FROM Salaries as t1 JOIN (SELECT company_id, MAX(salary) as max_sal FROM Salaries GROUP BY 1) as t2
+ON t1.company_id = t2.company_id;
+
 Q77.
+select e.left_operand, e.operator, e.right_operand,
+    case
+        when e.operator = '<' then if(l.value < r.value,'true','false')
+        when e.operator = '>' then if(l.value > r.value,'true','false')
+        else if(l.value = r.value,'true','false')
+    end as value
+from Expressions e 
+left join Variables l on e.left_operand = l.name 
+left join Variables r on e.right_operand = r.name;
+
 Q78.
+SELECT
+ co.name AS country
+FROM
+ Person p
+ JOIN
+     Country co
+     ON SUBSTRING(phone_number,1,3) = country_code
+ JOIN
+     Calls c
+     ON p.id IN (c.caller_id, c.callee_id)
+GROUP BY
+ co.name
+HAVING
+ AVG(duration) > (SELECT AVG(duration) FROM Calls);
+ 
 Q79.
+SELECT name FROM Employee ORDER BY name;
 
 Q80.
+with cte as(
+select extract(year from transaction_date) as year,product_id,spend as curr_year_spend,
+round(lag(spend) over(PARTITION BY product_id order by extract(year from transaction_date)),2)
+as prev_year_spend
+from user_transaction)
+select * ,
+case when prev_year_spend is not null then round(((curr_year_spend-prev_year_spend)/prev_year_spend*100),2)
+else prev_year_spend end as yoy_rate
+from cte ;
+
 Q81.
+SELECT item_type,
+    (CASE WHEN item_type = 'prime_eligible' 
+          THEN floor(500000/total_square_footage) * total_item_type
+          ELSE floor(((500000) - (floor(500000/(SELECT SUM(square_footage) FROM inventory WHERE item_type = 'prime_eligible'))* 
+          (SELECT SUM(square_footage) FROM inventory WHERE item_type = 'prime_eligible')))/(total_square_footage)
+          ) * total_item_type END) AS item_count   
+
+FROM(SELECT item_type,
+      COUNT(item_type) AS total_item_type,
+      SUM(square_footage) AS total_square_footage
+FROM inventory
+GROUP BY item_type) AS temp_table1       
+ORDER BY item_count DESC;
+
 Q82.
+WITH CTE AS
+(
+SELECT 
+user_id,
+event_date,
+EXTRACT(MONTH FROM event_date) - LAG(EXTRact(MONTH FROM event_date)) OVER(partition by user_id order by event_date) as month_number 
+FROM 
+user_actions
+) 
+SELECT
+Extract(month FROM event_date) as month,
+COUNT(*) as monthly_active_users FROM
+CTE
+WHERE month_number = 1
+GROUP by 1
+ORDER BY 2 desc
+LIMIT 1;
+
 Q83.
+with cte as(
+select searches
+from search_frequency
+group by searches,generate_series(1,num_users)
+)
+select round(percentile_cont(0.5) within group(order by searches)::decimal,1) as median
+from search_frequency;
+
 Q84.
+WITH payment_status AS (
+SELECT
+  advertiser.user_id,
+  advertiser.status,
+  payment.paid
+FROM advertiser
+LEFT JOIN daily_pay AS payment
+  ON advertiser.user_id = payment.user_id
+
+UNION
+
+SELECT
+  payment.user_id,
+  advertiser.status,
+  payment.paid
+FROM daily_pay AS payment
+LEFT JOIN advertiser
+  ON advertiser.user_id = payment.user_id
+)
+
+SELECT
+  user_id,
+  CASE WHEN paid IS NULL THEN 'CHURN'
+  	WHEN status != 'CHURN' AND paid IS NOT NULL THEN 'EXISTING'
+  	WHEN status = 'CHURN' AND paid IS NOT NULL THEN 'RESURRECT'
+  	WHEN status IS NULL THEN 'NEW'
+  END AS new_status
+FROM payment_status
+ORDER BY user_id;
+
 Q85.
+with cte as(
+select server_id,status_time,
+case when session_status='stop' then  lag(status_time) over(partition by server_id order by status_time) 
+ end as prev_time
+ from server_utilization1
+ )
+ select round(sum(running_time)/86400) as total_uptime_days from(
+ select server_id,sum(timestampdiff(second,prev_time,status_time)) running_time
+ from cte
+ where prev_time is not null
+ group by server_id)a;
+ 
 Q86.
+select count(t1.transaction_id) as payment_count
+from transactions3 t1 inner join transactions3 t2 
+on t1.merchant_id=t2.merchant_id and t1.credit_card_id=t2.credit_card_id and t1.amount=t2.amount
+and t2.transaction_timestamp>t1.transaction_timestamp
+where timestampdiff(minute,t1.transaction_timestamp,t2.transaction_timestamp)<10;
+
 Q87.
+with cte as(
+select o.customer_id,o.status,c.signup_timestamp,o.order_timestamp
+from orders o inner join  trips t on o.trip_id=t.trip_id 
+inner join customer c on c.customer_id=o.customer_id
+where extract(year from c.signup_timestamp)=2022 and month(c.signup_timestamp)=6 and datediff(o.order_timestamp,c.signup_timestamp)<=14
+)
+select round((100.0*count(case when status in('completed incorrectly','never received') then 1 else null end)/count(customer_id)),2)
+as bad_experience_pct
+from cte;
+
 Q88.
+select gender,day,sum(score_points) over(partition by gender order by day) as total 
+from scores
+order by gender;
+
 Q89.
+with cte1 as(
+select id ,name,phone_number,
+case when substring(phone_number,1,1)=0 then substring(phone_number,2,2) 
+	 else substring(phone_number,1,3) end as country_code
+     from person),
+cte2 as(
+select cn.name,c.duration
+from calls1 c inner join cte1 ct on c.caller_id=ct.id or c.callee_id=ct.id  left join country cn on ct.country_code=cn.country_code
+order by caller_id)
+select name from cte2
+group by name 
+having avg(duration)>(select avg(duration) from cte2);
 
 Q90.
+WITH searches_expanded AS (
+  SELECT num
+  FROM numbers
+  GROUP BY 
+    num, 
+    GENERATE_SERIES(1, frequency))
+
+SELECT 
+  ROUND(PERCENTILE_CONT(0.50) WITHIN GROUP (
+    ORDER BY num)::DECIMAL, 1) AS  median
+FROM searches_expanded;
+
+or
+
+SET @rowindex := -1;
+ 
+SELECT
+   AVG(d.frequency) as Median 
+FROM
+   (SELECT @rowindex:=@rowindex + 1 AS rowindex,
+           Numbers.frequency AS frequency
+    FROM Numbers
+    ORDER BY Numbers.frequency) AS d
+WHERE
+d.rowindex IN (FLOOR(@rowindex / 2), CEIL(@rowindex / 2));
+
 Q91.
+with cte1 as(
+select s.pay_date,round(avg(amount),2) as comp_avg_month
+from salary s inner join employee e
+on s.employee_id=e.employee_id
+group by month(pay_date)
+),
+cte2 as (
+select e.department_id,s.pay_date,round(avg(amount),2) as avg_month
+from salary s inner join employee e
+on s.employee_id=e.employee_id
+group by e.department_id,s.pay_date
+)
+       
+select date_format(c2.pay_date,'%Y-%m') as pay_month,c2.department_id,
+case when c2.avg_month>c1.comp_avg_month then 'higher'
+	 when c2.avg_month<c1.comp_avg_month then 'lower'
+     else 'same' end as comparison
+from
+cte1 c1 left join cte2 c2 
+on c1.pay_date=c2.pay_date
+order by department_id,month(c2.pay_date);
+
 Q92.
+with cte as(
+select player_id,event_date as curr_date,lead(event_date) over(partition by player_id order by event_date) as next_date
+from activity
+),
+cte1 as(
+select distinct(player_id),curr_date,
+case when datediff(next_date,curr_date)= 1 then 1 else 0 end as chk
+from cte
+group by player_id)
+
+select curr_date as install_dt,count(player_id) as installs,round((sum(chk)/count(chk)),1)as retention_rate
+from cte1
+group by curr_Date;
+
 Q93.
-Q94.
-Q95.
+with cte as(
+select m.first_player as player,m.first_score as score,p.group_id
+from matches m inner join players p on m.first_player=p.player_id
+union all
+select m.second_player as player,m.second_score as score,p.group_id
+from matches m inner join players p on m.second_player=p.player_id
+),
+cte2 as(
+select group_id,player,sum(score)as total_score
+from cte group by group_id,player
+)select group_id,player as player_id from(
+select group_id,player,rank() over(partition by group_Id order by total_score desc ,player)as rn
+from cte2)a
+where rn=1;
+
+Q94. and Q95.
+with cte1 as(
+select exam_id,max(score) as max_score,min(score) as min_score
+from exam group by exam_id
+),cte2 as(
+select distinct e.student_id,s.student_name,e.exam_id,e.score,c.min_score ,c.max_score
+from exam e left join student s
+on e.student_id=s.student_id left join cte1 c on c.exam_id=e.exam_id
+)
+select student_id,student_name
+from cte2 c where score <>min_score and score<>max_score
+group by student_id having count(student_id)=(select count(student_id) from exam where c.student_id=student_id group by student_id)
+
 Q96.
+select user_id,song_id,sum(song_plays) as song_plays from(
+select user_id,song_id,song_plays from 
+song_history union all
+select user_id,song_id,count(song_id) as song_plays
+from songs_weekly
+where listen_time<='2022-08-04 23:59:59'
+GROUP BY user_id,song_id)report
+group by user_id,song_id
+order by song_plays desc;
+
 Q97.
+with cte as(
+select e.email_id,t.text_id,e.signup_date,t.signup_action
+from emails e left join texts t
+on e.email_id=t.email_id
+group by email_id having text_id=max(text_id) or text_id is null)
+select 
+	round((count(case when signup_action='Confirmed' then 1 else null end)/count(email_id)),2) as confirm_rate
+    from cte;
+
 Q98.
+with cte as(
+select user_id,tweet_date,count(user_id) as tweet_count
+from tweets
+group by user_id,date(tweet_date)
+)
+select user_id,tweet_date,
+round(sum(tweet_count) over(partition by user_id order by tweet_date rows between 2 preceding and current row) /
+count(user_id) over(partition by user_id order by tweet_date rows between 2 preceding and current row),2) as rolling_avg_3_days
+from cte 
+order by user_id;
+
 Q99.
+select * from(
+select ab.age_bucket,
+round(100.0*sum(case when activity_type='send' then time_spent else 0 end)/sum(time_spent),2) as 'send_perc',
+round(100.0*sum(case when activity_type='open' then time_spent else 0 end)/sum(time_spent),2) as 'open_perc'
+from activities a left join age_breakdown ab
+on a.user_id=ab.user_id
+group by age_bucket
+order by age_bucket)a
+where send_perc <> 0 and open_perc <>0;
 
 Q100.
+with cte as(
+select ec.personal_profile_id,ec.company_id,cp.name,cp.followers as company_followers
+from employee_company ec left join company_pages cp
+on ec.company_id=cp.company_id)
+select profile_id from personal_profiles p
+where followers>(select max(company_followers) from cte where personal_profile_id=p.profile_id group by personal_profile_id)
+order by profile_id;
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 SET_3:
@@ -670,70 +964,61 @@ Q107.
 Q108.
 Q109.
 
-Q1X0.
-Q1X1.
-Q1X2.
-Q1X3.
-Q1X4.
-Q1X5.
-Q1X6.
-Q1X7.
-Q1X8.
-Q1X9.
+Q110.
+Q111.
+Q112.
+Q113.
+Q114.
+Q115.
+Q116.
+Q117.
+Q118.
+Q119.
 
-Q1X0.
-Q1X1.
-Q1X2.
-Q1X3.
-Q1X4.
-Q1X5.
-Q1X6.
-Q1X7.
-Q1X8.
-Q1X9.
+Q120.
+Q121.
+Q122.
+Q123.
+Q124.
+Q125.
+Q126.
+Q127.
+Q128.
+Q129.
 
-Q1X0.
-Q1X1.
-Q1X2.
-Q1X3.
-Q1X4.
-Q1X5.
-Q1X6.
-Q1X7.
-Q1X8.
-Q1X9.
+Q130.
+Q131.
+Q132.
+Q133.
+Q134.
+Q135.
+Q136.
+Q137.
+Q138.
+Q139.
 
-Q1X0.
-Q1X1.
-Q1X2.
-Q1X3.
-Q1X4.
-Q1X5.
-Q1X6.
-Q1X7.
-Q1X8.
-Q1X9.
+Q140.
+Q141.
+Q142.
+Q143.
+Q144.
+Q145.
+Q146.
+Q147.
+Q148.
+Q149.
 
-Q1X0.
-Q1X1.
-Q1X2.
-Q1X3.
-Q1X4.
-Q1X5.
-Q1X6.
-Q1X7.
-Q1X8.
-Q1X9.
+Q150.
+Q151.
+Q152.
+Q153.
+Q154.
+Q155.
+Q156.
+Q157.
+Q158.
+Q159.
 
-
-----------------------------
-Q1X0.
-Q1X1.
-Q1X2.
-Q1X3.
-Q1X4.
-Q1X5.
-Q1X6.
-Q1X7.
-Q1X8.
-Q1X9.
+-----------------------------------------------------------------------------------------------------------------------------------
+END
+-----------------------------------------------------------------------------------------------------------------------------------

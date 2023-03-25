@@ -1009,15 +1009,104 @@ Q148.
 Q149.
 
 Q150.
+
 Q151.
+select * from transactions;
+with cte as(
+select *,
+transaction_date -row_number() over(partition by user_id order by transaction_date) as gp_date
+from transactions)
+
+select distinct user_id
+from cte
+group by user_id,date(gp_date) having count(*)>=3;
+	
 Q152.
+with cte as(
+select rental_id,group_concat(amentity order by amentity) as amentities
+from rental_amenities
+group by rental_id)
+select count(*) as matching_airbnb from(
+select amentities,count(distinct amentities) as gp_match
+from cte
+group by amentities having count(*)>1)a;
+
 Q153.
+select advertiser_id, round(sum(revenue)/sum(spend),2) as ROAS
+from ad_campaigns
+group by advertiser_id
+order by advertiser_id;
+
 Q154.
+with cte as(
+select title,round(avg(salary),2) as avg_salary
+from employee_pay
+group by title
+)
+
+select employee_Id ,salary ,status 
+from(
+select 
+e.employee_id,e.salary,
+case when e.salary > 2*c.avg_salary then 'Overpaid'
+	when e.salary < c.avg_salary/2 then 'Underpaid'
+end as status
+from  employee_pay e inner join cte c 
+on e.title=c.title)a
+where status is not null;
+			
 Q155.
+select count(p1.payer_id) as unique_relationships
+from payments p1 
+inner join payments p2
+on p1.payer_id=p2.recipient_id 
+and p1.recipient_id=p2.payer_id 
+and p1.payer_id>p2.payer_id;
+
 Q156.
+select count(distinct user_id) as repeated_customers
+from purchases 
+group by user_id,product_id 
+having count(distinct purchase_time)>=2;
+
 Q157.
+with cte as(
+select transaction_id,type,transaction_date,
+case when type='withdrawal' then  -1*amount
+else amount end as amount 
+from transactions)
+
+select transaction_date,round(sum(amount),2) as balance
+from cte
+group by day(transaction_date)
+order by date(transaction_date);
+ 
 Q158.
+with cte as(
+select category,product,round(sum(spend),2) as total_spend
+from product_spend
+where year(transaction_date)=2022
+group by category,product)
+
+select category,product,total_spend from(
+select category,product,total_spend,dense_rank() over(partition by category order by total_spend desc) as rn
+from cte)a
+where rn in(1,2)
+order by category,product,total_spend;
+
 Q159.
+with cte as(
+select user_id,signup_date,last_login,
+WEEK(signup_date,6) - WEEK(DATE_SUB(signup_date, INTERVAL DAYOFMONTH(signup_date)-1 DAY),6)+1 as signup_week,
+case
+ when datediff(last_login,signup_date)<28 then 1
+ else 0 
+end as chk
+from users)
+	   
+select signup_week,round((100.0*sum(chk)/count(chk)),2) as churn_rate
+from cte
+group by signup_week;
 
 -----------------------------------------------------------------------------------------------------------------------------------
 END

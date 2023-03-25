@@ -423,7 +423,317 @@ order by group_id,totalScores desc,player_id;
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 SET_2:
+
+Q51.
+SELECT name,population,area
+FROM World
+WHERE area > 3000000 or population > 25000000;
+
+Q52.
+select name from Customer where referee_id != 2
+
+Q53.
+SELECT C.Name FROM Customers C LEFT JOIN Orders O ON C.Id = O.CustomerId WHERE O.CustomerId is NULL;
+
+Q54.
+SELECT employee_id, COUNT(team_id) OVER (PARTITION BY team_id) team_size
+FROM Employee;
+
+Q55.
+SELECT
+ co.name AS country
+FROM
+ Person p
+ JOIN
+     Country co
+     ON SUBSTRING(phone_number,1,3) = country_code
+ JOIN
+     Calls c
+     ON p.id IN (c.caller_id, c.callee_id)
+GROUP BY
+ co.name
+HAVING
+ AVG(duration) > (SELECT AVG(duration) FROM Calls);
+
+Q56.
+select player_id,device_id from activity a
+where event_date=(select min(event_date) from activity group by player_id having player_id=a.player_id);
+
+Q57.
+SELECT
+    customer_number
+FROM
+    Orders
+GROUP BY customer_number
+ORDER BY COUNT(*) DESC
+LIMIT 1
+;
+
+Q58.
+SELECT
+    DISTINCT t1.seat_id
+FROM Cinema AS t1 JOIN Cinema AS t2
+ON abs(t1.seat_id - t2.seat_id) = 1
+AND t1.free = 1 AND t2.free = 1
+ORDER BY 1; 
+
+Q59.
+SELECT name
+FROM Salesperson
+WHERE sales_id
+NOT IN (
+    SELECT s.sales_id FROM Orders o
+    INNER JOIN Salesperson s ON o.sales_id = s.sales_id
+    INNER JOIN Company c ON o.com_id = c.com_id
+    WHERE c.name = 'RED'
+);
+
+Q60.
+SELECT
+    x,
+    y,
+    z,
+    CASE WHEN x + y > z AND y + z > x AND z + x > y THEN 'Yes'
+        ELSE 'No' END AS triangle
+FROM Triangle;
+
+Q61.
+select min(abs(p2.x-p1.x)) as shortest
+from Point p1, Point p2
+where p1.x != p2.x;
+
+Q62.
+SELECT actor_id, director_id
+FROM ActorDirector
+GROUP BY actor_id, director_id
+HAVING COUNT(*) >= 3;
+
+Q63.
+select p.product_name, s.year, s.price
+from Product p
+join Sales s
+on s.product_id = p.product_id;
+
+Q64.
+select project_id , round(avg(experience_years), 2) as average_years
+from Project as p
+left join Employee as e
+on p.employee_id = e.employee_id
+group by project_id;
+
+Q65.
+select a.seller_id
+from 
+(select seller_id, sum(price) as sum 
+from Sales
+group by seller_id) a 
+where a.sum = (select max(b.sum)from(select seller_id, sum(price) as sum 
+from Sales
+group by seller_id)b );
+
+Q66.
+select distinct buyer_id from Sales s
+join Product p
+on p.product_id = s.product_id
+where p.product_name = 'S8'
+and buyer_id not in
+(
+select buyer_id from Sales s
+    join Product p on p.product_id = s.product_id
+    where p.product_name = 'iPhone'
+);
+
+Q67.
+with cte as(
+select 
+visited_on,
+sum(amount) amount
+from customer
+group by visited_on)
+
+select 
+visited_on,
+amount,
+average_amount 
+from(
+select visited_on,
+sum(amount) over(order by visited_on rows between 6 preceding  and current row) as amount,
+round(sum(amount) over(order by visited_on rows between 6 preceding  and current row)/7,2) as average_amount,
+lag(visited_on,6) over(order by visited_on) as prev_6
+from cte)a
+where prev_6 is not null
+order by visited_on;
+
+Q68.
+select s1.gender, s1.day, sum(s2.score_points) as total from Scores s1, Scores s2
+where s1.gender = s2.gender and s1.day >= s2.day
+group by s1.gender, s1.day
+order by s1.gender, s1.day;
+
+Q69.
+select min(log_id) as start_id, max(log_id) as end_id
+from (select l.log_id, (l.log_id - l.row_num) as diff
+      from (select log_id, row_number() over() as row_num from Logs) l
+      ) l2
+group by diff;
+
+Q70.
+select a.student_id, a.student_name, b.subject_name, count(c.subject_name) as attended_exams
+from Students as a
+join Subjects as b
+left join Examinations as c
+on a.student_id = c.student_id and b.subject_name = c.subject_name
+group by a.student_id, b.subject_name;
+
+Q71.
+select e3.employee_id from Employees e1, Employees e2, Employees e3
+where e1.manager_id = 1 and e2.manager_id = e1.employee_id and e3.manager_id = e2.employee_id and e3.employee_id != 1;
+
+Q72.
+SELECT DATE_FORMAT(trans_date, '%Y-%m') AS month, country
+       , COUNT(1) AS trans_count
+       , COUNT(if(state = 'approved', 1, NULL)) AS approved_count
+       , SUM(amount) AS trans_total_amount
+       , SUM(if(state = 'approved', amount, 0)) AS approved_total_amount
+FROM Transactions
+GROUP BY month, country;
+
+Q73.
+SELECT ROUND(AVG(percentage),2) AS average_daily_percent
+FROM (
+SELECT action_date, 
+(COUNT(DISTINCT b.post_id)/COUNT(DISTINCT a.post_id))*100 AS percentage 
+FROM Actions AS a
+LEFT JOIN Removals AS b
+ON a.post_id = b.post_id
+WHERE a.action = 'report'
+AND a.extra = 'spam'
+GROUP BY a.action_date
+) AS tmp;
+
+Q74. and Q75.
+WITH CTE AS (
+SELECT
+player_id, min(event_date) as event_start_date
+from
+Activity
+group by player_id )
+
+SELECT
+round((count(distinct c.player_id) / (select count(distinct player_id) from Activity)),2)as fraction
+FROM
+CTE c
+JOIN Activity a
+on c.player_id = a.player_id
+and datediff(c.event_start_date, a.event_date) = -1;
+
+Q76.
+Q77.
+Q78.
+Q79.
+
+Q80.
+Q81.
+Q82.
+Q83.
+Q84.
+Q85.
+Q86.
+Q87.
+Q88.
+Q89.
+
+Q90.
+Q91.
+Q92.
+Q93.
+Q94.
+Q95.
+Q96.
+Q97.
+Q98.
+Q99.
+
+Q100.
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 SET_3:
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+Q101.
+Q102.
+Q103.
+Q104.
+Q105.
+Q106.
+Q107.
+Q108.
+Q109.
+
+Q1X0.
+Q1X1.
+Q1X2.
+Q1X3.
+Q1X4.
+Q1X5.
+Q1X6.
+Q1X7.
+Q1X8.
+Q1X9.
+
+Q1X0.
+Q1X1.
+Q1X2.
+Q1X3.
+Q1X4.
+Q1X5.
+Q1X6.
+Q1X7.
+Q1X8.
+Q1X9.
+
+Q1X0.
+Q1X1.
+Q1X2.
+Q1X3.
+Q1X4.
+Q1X5.
+Q1X6.
+Q1X7.
+Q1X8.
+Q1X9.
+
+Q1X0.
+Q1X1.
+Q1X2.
+Q1X3.
+Q1X4.
+Q1X5.
+Q1X6.
+Q1X7.
+Q1X8.
+Q1X9.
+
+Q1X0.
+Q1X1.
+Q1X2.
+Q1X3.
+Q1X4.
+Q1X5.
+Q1X6.
+Q1X7.
+Q1X8.
+Q1X9.
+
+
+----------------------------
+Q1X0.
+Q1X1.
+Q1X2.
+Q1X3.
+Q1X4.
+Q1X5.
+Q1X6.
+Q1X7.
+Q1X8.
+Q1X9.
